@@ -11,7 +11,7 @@ import PostForm from "~/components/post-form";
 import { vCreatePost } from "~/services/validations";
 
 type LoaderData = {
-  posts: Post[];
+  posts: Awaited<ReturnType<typeof getPosts>>;
 };
 
 export const loader: LoaderFunction = async () => {
@@ -47,8 +47,9 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   await createPost({
-    title: result.data.title as string | null,
+    title: result.data.title,
     body: result.data.body,
+    userId: "16f25644-90d0-42eb-900b-56a6056435c7",
   });
 
   return redirect("/");
@@ -59,23 +60,28 @@ export default function Index() {
   const formData = useActionData<ActionData>();
 
   return (
-    <div className="w-96">
-      <h1>Welcome</h1>
-      <PostForm
-        method="post"
-        action="/?index"
-        error={formData?.error}
-        fields={formData?.fields}
-      />
-      <ul>
-        {posts.map(({ title, body }) => (
-          <li key={body}>
-            <PostComponent title={title}>
-              <p>{body}</p>
-            </PostComponent>
-          </li>
-        ))}
-      </ul>
+    <div className="w-full p-8 grid" style={{ gridTemplateColumns: "3fr 2fr" }}>
+      <main>
+        <h1 className="font-bold text-gray-900 text-3xl mb-4">View Posts</h1>
+        <div className="space-y-4 flex flex-col pr-8">
+          {posts.map(({ id, title, body, user: { name } }) => (
+            <PostComponent
+              key={id}
+              title={title}
+              body={body}
+              authorName={name}
+            />
+          ))}
+        </div>
+      </main>
+      <aside>
+        <PostForm
+          method="post"
+          action="/?index"
+          error={formData?.error}
+          fields={formData?.fields}
+        />
+      </aside>
     </div>
   );
 }
