@@ -1,5 +1,4 @@
 import React from "react";
-import { Form } from "@remix-run/react";
 import type { Post } from "@prisma/client";
 import type { typeToFlattenedError } from "zod";
 
@@ -20,7 +19,7 @@ const PostForm: React.FC<PostFormProps> = ({
   fields,
 }) => {
   return (
-    <Form
+    <form
       action={action}
       method={method}
       className="flex flex-col gap-4 pt-4 sticky top-0"
@@ -55,16 +54,18 @@ const PostForm: React.FC<PostFormProps> = ({
           <p className="text-red-500 mt-2">{error.fieldErrors.body}</p>
         )}
       </div>
-      {error?.formErrors.length ? (
-        <p className="text-red-500 mt-2">{error.formErrors}</p>
-      ) : null}
       <button
         type="submit"
-        className="transition rounded-md text-white bg-indigo-500 px-2 py-1 mt-2 shadow hover:shadow-md active:shadow-sm"
+        className="transition rounded-md text-white bg-indigo-500 px-2 py-1 mt-2 shadow hover:shadow-md active:shadow-sm focus:outline-none focus:ring"
       >
         Create Post
       </button>
-    </Form>
+      {error?.formErrors?.map((e) => (
+        <p key={e} className="text-red-500 mt-2">
+          {e}
+        </p>
+      ))}
+    </form>
   );
 };
 

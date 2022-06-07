@@ -60,7 +60,10 @@ export default function Index() {
   const formData = useActionData<ActionData>();
 
   return (
-    <div className="w-full p-8 grid" style={{ gridTemplateColumns: "3fr 2fr" }}>
+    <div
+      className="p-8 grid container mx-auto"
+      style={{ gridTemplateColumns: "3fr 1fr" }}
+    >
       <main>
         <h1 className="font-bold text-gray-900 text-3xl mb-4">View Posts</h1>
         <div className="space-y-4 flex flex-col pr-8">
@@ -77,7 +80,7 @@ export default function Index() {
       <aside>
         <PostForm
           method="post"
-          action="/?index"
+          action="/"
           error={formData?.error}
           fields={formData?.fields}
         />
