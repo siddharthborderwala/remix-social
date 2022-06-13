@@ -1,21 +1,15 @@
 import type { FormProps } from "@remix-run/react";
 import { Form, useTransition } from "@remix-run/react";
 import React from "react";
-import type { typeToFlattenedError } from "zod";
 
 type LoginFormProps = FormProps & {
   action: string;
-  error?: typeToFlattenedError<{
-    email: string;
-    password: string;
-  }>;
-  fields?: {
-    email?: string;
-    password?: string;
+  error?: {
+    formErrors: string[];
   };
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({ action, error, fields }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ action, error }) => {
   const transition = useTransition();
 
   return (
@@ -25,39 +19,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ action, error, fields }) => {
           Email
         </label>
         <input
-          defaultValue={fields?.email}
           type="email"
           name="email"
           className="px-2 border rounded-md shadow focus:outline-none focus:ring p-1"
           autoComplete="user-name"
           required
         />
-        {error?.fieldErrors.email && (
-          <p className="text-red-500 mt-2">{error.fieldErrors.email}</p>
-        )}
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="password" className="mb-2 text-slate-700 font-medium">
           Password
         </label>
         <input
-          defaultValue={fields?.password}
           type="password"
           name="password"
           className="px-2 border rounded-md shadow focus:outline-none focus:ring p-1"
           autoComplete="current-password"
           required
         />
-        {error?.fieldErrors.password && (
-          <p className="text-red-500 mt-2">{error.fieldErrors.password}</p>
-        )}
       </div>
       <button
         type="submit"
         className="transition rounded-md text-white bg-indigo-500 px-2 py-1.5 mt-3 shadow hover:shadow-md active:shadow-sm focus:outline-none focus:ring"
         disabled={transition.state !== "idle"}
       >
-        {transition.state === "submitting" ? "Submitting..." : "Login"}
+        {transition.state === "submitting" ? "Logging in..." : "Login"}
       </button>
       {error?.formErrors?.map((e) => (
         <p key={e} className="text-red-500 mt-2">

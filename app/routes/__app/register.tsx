@@ -1,13 +1,13 @@
-import { redirect } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useActionData } from "@remix-run/react";
-import bcrypt from "bcryptjs";
 import type { ActionFunction } from "@remix-run/node";
 import type { typeToFlattenedError } from "zod";
 import RegisterForm from "~/components/register-form";
 import type { SignupInputType } from "~/services/users.server";
+import { checkUserExistsByEmail } from "~/services/users.server";
 import { signupUser } from "~/services/users.server";
 import { vUserSignup } from "~/services/validations";
+import { authenticator, USER_LOGIN } from "~/services/auth.server";
 
 type ActionData = {
   error: typeToFlattenedError<SignupInputType>;
@@ -23,6 +23,21 @@ export const action: ActionFunction = async ({ request }) => {
   const rawName = form.get("name");
   const rawEmail = form.get("email");
   const rawPassword = form.get("password");
+
+  if (
+    typeof rawEmail !== "string" ||
+    typeof rawPassword !== "string" ||
+    typeof rawName !== "string"
+  ) {
+    return json(
+      {
+        error: {
+          formError: ["Form not submitted correctly"],
+        },
+      },
+      400
+    );
+  }
 
   const result = vUserSignup.safeParse({
     name: rawName,
@@ -44,26 +59,26 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const salt: string = await new Promise((resolve, reject) => {
-    bcrypt.genSalt(8, function (err, salt) {
-      if (err) reject(err);
-      resolve(salt);
-    });
-  });
+  if (await checkUserExistsByEmail(result.data.email)) {
+    return json(
+      {
+        error: {
+          formErrors: [
+            `User with email ${rawEmail} already exists, please login.`,
+          ],
+        },
+      },
+      400
+    );
+  }
 
-  const passwordHash: string = await new Promise((resolve, reject) => {
-    bcrypt.hash(result.data.password, salt, function (err, hash) {
-      if (err) reject(err);
-      resolve(hash);
-    });
-  });
+  await signupUser(result.data);
 
-  await signupUser({
-    ...result.data,
-    password: passwordHash,
+  return await authenticator.authenticate(USER_LOGIN, request, {
+    successRedirect: "/",
+    throwOnError: true,
+    failureRedirect: "/login",
   });
-
-  return redirect("/");
 };
 
 export default function Index() {

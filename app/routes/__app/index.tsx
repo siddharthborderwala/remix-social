@@ -9,14 +9,18 @@ import { getPosts } from "~/services/posts.server";
 import PostComponent from "~/components/post";
 import PostForm from "~/components/post-form";
 import { vCreatePost } from "~/services/validations";
+import { authenticator } from "~/services/auth.server";
 
 type LoaderData = {
   posts: Awaited<ReturnType<typeof getPosts>>;
 };
 
-export const loader: LoaderFunction = async () => {
-  const data: LoaderData = { posts: await getPosts() };
-  return json(data);
+export const loader: LoaderFunction = async ({ request }) => {
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
+  const posts = await getPosts();
+  return json({ posts });
 };
 
 type ActionData = {
@@ -28,6 +32,9 @@ type ActionData = {
 };
 
 export const action: ActionFunction = async ({ request }) => {
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login",
+  });
   const form = await request.formData();
   const rawTitle = form.get("title");
   const rawBody = form.get("body");
@@ -49,7 +56,7 @@ export const action: ActionFunction = async ({ request }) => {
   await createPost({
     title: result.data.title,
     body: result.data.body,
-    userId: "16f25644-90d0-42eb-900b-56a6056435c7",
+    userId: user.id,
   });
 
   return redirect("/");
@@ -65,7 +72,7 @@ export default function Index() {
       style={{ gridTemplateColumns: "3fr 1fr" }}
     >
       <main>
-        <h1 className="font-bold text-gray-900 text-3xl mb-4">View Posts</h1>
+        <h1 className="font-bold text-gray-900 text-2xl mb-4">View Posts</h1>
         <div className="space-y-4 flex flex-col pr-8">
           {posts.map(({ id, title, body, user: { name } }) => (
             <PostComponent
@@ -80,7 +87,7 @@ export default function Index() {
       <aside>
         <PostForm
           method="post"
-          action="/"
+          action="/?index"
           error={formData?.error}
           fields={formData?.fields}
         />

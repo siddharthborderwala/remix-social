@@ -38,7 +38,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           autoComplete="off"
           required
         />
-        {error?.fieldErrors.name && (
+        {error?.fieldErrors?.name && (
           <p className="text-red-500 mt-2">{error.fieldErrors.name}</p>
         )}
       </div>
@@ -54,7 +54,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           autoComplete="user-name"
           required
         />
-        {error?.fieldErrors.email && (
+        {error?.fieldErrors?.email && (
           <p className="text-red-500 mt-2">{error.fieldErrors.email}</p>
         )}
       </div>
@@ -70,7 +70,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
           autoComplete="current-password"
           required
         />
-        {error?.fieldErrors.password && (
+        {error?.fieldErrors?.password && (
           <p className="text-red-500 mt-2">
             {error.fieldErrors.password.toString()}
           </p>
@@ -81,7 +81,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         className="transition rounded-md text-white bg-indigo-500 px-2 py-1.5 mt-3 shadow hover:shadow-md active:shadow-sm focus:outline-none focus:ring"
         disabled={transition.state !== "idle"}
       >
-        {transition.state === "submitting" ? "Submitting..." : "Create Account"}
+        {transition.state === "submitting"
+          ? "Registering..."
+          : "Create Account"}
       </button>
       {error?.formErrors?.map((e) => (
         <p key={e} className="text-red-500 mt-2">

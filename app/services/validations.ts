@@ -10,9 +10,15 @@ export const vUserSignup = z.object({
   email: z.string().email(),
   password: z
     .string()
-    .min(6, "The password should be at least 6 characters long")
-    .max(20, "The password should be at max 20 characters long")
+    .min(6, "The password should be at least 6 characters long.")
+    .max(20, "The password should be at max 20 characters long.")
     .regex(
-      /^(?=.*[A-Z].*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z]).{6,20}$/
+      /^(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z]).{6,20}$/,
+      "The password needs to have at least one small letter, on big letter, one number and one special character (!@#$&*)."
     ),
+});
+
+export const vLogin = z.object({
+  email: z.string().email(),
+  password: z.string(),
 });
