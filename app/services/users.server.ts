@@ -33,8 +33,7 @@ export const signupUser = async ({
 };
 
 export const checkUserExistsByEmail = async (email: string) =>
-  (await db.user.findUnique({ where: { email }, select: { id: true } })) !==
-  undefined;
+  (await db.user.count({ where: { email } })) > 0;
 
 export const loginUser = async (email: string, password: string) => {
   const user = await db.user.findFirst({ where: { email } });
